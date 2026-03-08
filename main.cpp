@@ -22,7 +22,7 @@ void show_title(string title, int color_pair = 0) {
     refresh();
 }
 
-string ask_csv_file() {
+string ask_csv_file(int color_pair = 0) {
     vector<string> file_array;
 
     for (const auto& entry : filesystem::directory_iterator(".")) {
@@ -40,9 +40,9 @@ string ask_csv_file() {
         show_title("Please select a .csv file");
         for (int i = 0; i < file_array.size(); i++) {
             if (i == selected_index) {
-                attron(COLOR_PAIR(1));
+                attron(COLOR_PAIR(color_pair));
                 printw("[%s]", file_array[i].c_str());
-                attroff(COLOR_PAIR(1));
+                attroff(COLOR_PAIR(color_pair));
             } else {
                 printw("[%s]", file_array[i].c_str());
             }
@@ -69,20 +69,21 @@ string ask_csv_file() {
 void apply_ncurses_config() {
     keypad(stdscr, true);
     noecho();
+    cbreak();
     curs_set(0);
-    mousemask(0, NULL); //disable clicks
+    mousemask(0, NULL); // disable clicks
 
     start_color();
     use_default_colors();
-    init_pair(1, COLOR_GREEN, -1); //green text, default bg
-    init_pair(2, COLOR_CYAN, -1);
+    init_pair(1, COLOR_GREEN, -1); // green text, default bg
+    init_pair(2, COLOR_BLUE, -1); // for selected rows
 }
 
 int main() {
     initscr();
     apply_ncurses_config();
 
-    string file = ask_csv_file();
+    string file = ask_csv_file(1);
     
     clear();
     if (file == "") {
@@ -96,13 +97,10 @@ int main() {
     vector<Transaction> transactions;
     read_csv_file(file, transactions);
     
-    show_title(file, 2);
-    for (int i = 0; i < transactions.size(); i++) {
-        transactions[i].print_row();
-        printw("\n");
-    }
-    getch();
+    show_title(file, 1);
+    print_transaction_table(transactions, 'l');
 
+    clear();
     endwin();
     return 0;    
 }

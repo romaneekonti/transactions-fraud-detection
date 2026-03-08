@@ -82,22 +82,27 @@ int main() {
     initscr();
     apply_ncurses_config();
 
-    // string file = ask_csv_file();
-    // clear();
-    // show_title(file, 2);
-
-    // getch();
-
-    // endwin();
-
+    string file = ask_csv_file();
+    
+    clear();
+    if (file == "") {
+        printw("No file selected, program terminated...");
+        getch();
+        clear();
+        endwin();
+        return 0;
+    }
+    
     vector<Transaction> transactions;
-    read_csv_file("fake_data.csv", transactions);
-
+    read_csv_file(file, transactions);
+    
+    show_title(file, 2);
     for (int i = 0; i < transactions.size(); i++) {
         transactions[i].print_row();
         printw("\n");
     }
     getch();
 
+    endwin();
     return 0;    
 }
